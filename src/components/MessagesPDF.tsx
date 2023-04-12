@@ -30,6 +30,6 @@ const MessagesPDF = ({ messages }: { messages: Message[] }) => (
   </Document>
 );
 
-export const saveMessagesToPDF = (mm: Message[]) => {
+export const SaveMessagesToPDF = (mm: Message[]) => {
   ReactPDF.render(<MessagesPDF messages={mm} />, `${__dirname}/example.pdf`);
 };

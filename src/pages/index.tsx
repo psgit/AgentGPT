@@ -14,6 +14,8 @@ import AutonomousAgent from "../components/AutonomousAgent";
 import Expand from "../components/motions/expand";
 import HelpDialog from "../components/HelpDialog";
 import SettingsDialog from "../components/SettingsDialog";
+import SaveMessagesToPDF from "../components/MessagesPDF";
+import { BiMessageSquare } from "react-icons/bi";
 
 const Home: NextPage = () => {
   const [name, setName] = React.useState<string>("");
@@ -66,6 +68,10 @@ const Home: NextPage = () => {
   const handleStopAgent = () => {
     setShouldAgentStop(true);
     agent?.stopAgent();
+  };
+
+  const handleSaveToPDF = () => {
+    SaveMessagesToPDF(messages);
   };
 
   return (
@@ -175,6 +181,20 @@ const Home: NextPage = () => {
                   </>
                 ) : (
                   "Stop agent"
+                )}
+              </Button>
+              <Button
+                disabled={agent != null || messages.length === 0}
+                onClick={handleSaveToPDF}
+                className="mt-10"
+              >
+                {agent == null && messages.length > 0 ? (
+                  "Save to PDF..."
+                ) : (
+                  <>
+                    <VscLoading className="animate-spin" size={20} />
+                    <span className="ml-2">Running</span>
+                  </>
                 )}
               </Button>
             </div>
