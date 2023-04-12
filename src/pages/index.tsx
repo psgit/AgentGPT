@@ -2,6 +2,7 @@ import { type NextPage } from "next";
 import Badge from "../components/Badge";
 import DefaultLayout from "../layout/default";
 import React, { useEffect } from "react";
+import ReactDOM from "react-dom";
 import type { Message } from "../components/ChatWindow";
 import ChatWindow from "../components/ChatWindow";
 import Drawer from "../components/Drawer";
@@ -14,7 +15,7 @@ import AutonomousAgent from "../components/AutonomousAgent";
 import Expand from "../components/motions/expand";
 import HelpDialog from "../components/HelpDialog";
 import SettingsDialog from "../components/SettingsDialog";
-import SaveMessagesToPDF from "../components/MessagesPDF";
+import DownloadPDF from "../components/MessagesPDF";
 import { BiMessageSquare } from "react-icons/bi";
 
 const Home: NextPage = () => {
@@ -68,10 +69,6 @@ const Home: NextPage = () => {
   const handleStopAgent = () => {
     setShouldAgentStop(true);
     agent?.stopAgent();
-  };
-
-  const handleSaveToPDF = () => {
-    SaveMessagesToPDF(messages);
   };
 
   return (
@@ -183,20 +180,9 @@ const Home: NextPage = () => {
                   "Stop agent"
                 )}
               </Button>
-              <Button
-                disabled={agent != null || messages.length === 0}
-                onClick={handleSaveToPDF}
-                className="mt-10"
-              >
-                {agent == null && messages.length > 0 ? (
-                  "Save to PDF..."
-                ) : (
-                  <>
-                    <VscLoading className="animate-spin" size={20} />
-                    <span className="ml-2">Running</span>
-                  </>
-                )}
-              </Button>
+              <span className="text-xl text-white">
+                {agent == null && messages.length > 0 && DownloadPDF(messages)}
+              </span>
             </div>
           </div>
         </div>
