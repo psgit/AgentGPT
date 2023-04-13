@@ -17,6 +17,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import DownloadPDF from "./MessagesPDF";
 
 interface ChatWindowProps {
   children?: ReactNode;
@@ -61,7 +62,7 @@ const ChatWindow = ({ messages, children, className }: ChatWindowProps) => {
         (className ?? "")
       }
     >
-      <MacWindowHeader />
+      <MacWindowHeader messages={messages} />
       <div
         className="mb-2 mr-2 h-[14em] overflow-y-auto overflow-x-hidden sm-h:h-[17em] md-h:h-[22em] lg-h:h-[30em] "
         ref={scrollRef}
@@ -98,7 +99,7 @@ const ChatWindow = ({ messages, children, className }: ChatWindowProps) => {
   );
 };
 
-const MacWindowHeader = () => {
+const MacWindowHeader = ({ messages }: { messages: Message[] }) => {
   const saveElementAsImage = (elementId: string) => {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -166,6 +167,11 @@ const MacWindowHeader = () => {
         <FaClipboard size={12} />
         <p className="font-mono">Copy</p>
       </div>
+      {messages && messages.length > 0 && (
+        <div className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 hover:bg-white/10">
+          {DownloadPDF("agent-gpt-messages", messages)}{" "}
+        </div>
+      )}
     </div>
   );
 };
