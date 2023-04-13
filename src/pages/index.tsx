@@ -190,7 +190,7 @@ const Home: NextPage = () => {
                 )}
               </Button>
               {agent == null && messages.length > 0 && (
-                <Button className="mt-10">
+                <Button className="sm:mt-10">
                   {DownloadPDF("agent-gpt-messages.pdf", messages)}
                 </Button>
               )}
