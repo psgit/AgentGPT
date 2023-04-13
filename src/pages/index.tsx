@@ -180,11 +180,11 @@ const Home: NextPage = () => {
                   "Stop agent"
                 )}
               </Button>
-              <span className="text-xl text-white">
-                {agent == null &&
-                  messages.length > 0 &&
-                  DownloadPDF("agent-gpt-messages.pdf", messages)}
-              </span>
+              {agent == null && messages.length > 0 && (
+                <Button className="mt-10">
+                  {DownloadPDF("agent-gpt-messages.pdf", messages)}
+                </Button>
+              )}
             </div>
           </div>
         </div>
