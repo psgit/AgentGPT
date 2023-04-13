@@ -12,12 +12,15 @@ import { Message } from "./ChatWindow";
 const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
-    backgroundColor: "#E4E4E4",
+    backgroundColor: "#ffffff",
   },
   section: {
     margin: 10,
     padding: 10,
     flexGrow: 1,
+  },
+  text: {
+    color: "#000000",
   },
 });
 
@@ -27,8 +30,8 @@ const MessagesPDF = ({ messages }: { messages: Message[] }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.section}>
         {messages.map((message) => (
-          <Text>
-            {message.type} - {message.value}
+          <Text style={styles.text}>
+            {message.type}: {message.value}
           </Text>
         ))}
       </View>
@@ -38,10 +41,7 @@ const MessagesPDF = ({ messages }: { messages: Message[] }) => (
 
 const DownloadPDF = (name: string, mm: Message[]) => {
   return (
-    <PDFDownloadLink
-      document={<MessagesPDF messages={mm} />}
-      fileName={name}
-    >
+    <PDFDownloadLink document={<MessagesPDF messages={mm} />} fileName={name}>
       {({ blob, url, loading, error }) =>
         loading ? "Loading PDF document..." : "Download PDF"
       }
