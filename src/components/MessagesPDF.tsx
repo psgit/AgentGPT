@@ -1,5 +1,4 @@
 import {
-  BlobProvider,
   PDFDownloadLink,
   Document,
   Page,
@@ -7,7 +6,6 @@ import {
   View,
   StyleSheet,
 } from "@react-pdf/renderer";
-import ReactPDF from "@react-pdf/renderer";
 import { Message } from "./ChatWindow";
 
 // Create styles
@@ -38,28 +36,11 @@ const MessagesPDF = ({ messages }: { messages: Message[] }) => (
   </Document>
 );
 
-const SaveMessagesToPDF = (mm: Message[]) => {
-  alert("Save pdf");
-  alert(JSON.stringify(mm));
-  ReactPDF.render(<MessagesPDF messages={mm} />, `${__dirname}/example.pdf`);
-  alert("finished pdf");
-};
-
-const GetPDF = (mm: Message[]) => {
-  return (
-    <BlobProvider document={<MessagesPDF messages={mm} />}>
-      {({ blob, url, loading }) => {
-        return loading ? "loading" : url;
-      }}
-    </BlobProvider>
-  );
-};
-
-const DownloadPDF = (mm: Message[]) => {
+const DownloadPDF = (name: string, mm: Message[]) => {
   return (
     <PDFDownloadLink
       document={<MessagesPDF messages={mm} />}
-      fileName="AgentGPT-Chat-Messages.pdf"
+      fileName={name}
     >
       {({ blob, url, loading, error }) =>
         loading ? "Loading PDF document..." : "Download PDF"

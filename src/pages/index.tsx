@@ -181,7 +181,9 @@ const Home: NextPage = () => {
                 )}
               </Button>
               <span className="text-xl text-white">
-                {agent == null && messages.length > 0 && DownloadPDF(messages)}
+                {agent == null &&
+                  messages.length > 0 &&
+                  DownloadPDF("agent-gpt-messages.pdf", messages)}
               </span>
             </div>
           </div>
