@@ -2,6 +2,7 @@ import { type NextPage } from "next";
 import Badge from "../components/Badge";
 import DefaultLayout from "../layout/default";
 import React, { useEffect } from "react";
+import ReactDOM from "react-dom";
 import type { Message } from "../components/ChatWindow";
 import ChatWindow from "../components/ChatWindow";
 import Drawer from "../components/Drawer";
@@ -14,6 +15,8 @@ import AutonomousAgent from "../components/AutonomousAgent";
 import Expand from "../components/motions/expand";
 import HelpDialog from "../components/HelpDialog";
 import SettingsDialog from "../components/SettingsDialog";
+import DownloadPDF from "../components/MessagesPDF";
+import { BiMessageSquare } from "react-icons/bi";
 
 const Home: NextPage = () => {
   const [name, setName] = React.useState<string>("");
@@ -188,6 +191,11 @@ const Home: NextPage = () => {
                   "Stop agent"
                 )}
               </Button>
+              {agent == null && messages.length > 0 && (
+                <Button className="mt-10">
+                  {DownloadPDF("agent-gpt-messages.pdf", messages)}
+                </Button>
+              )}
             </div>
           </div>
         </div>
