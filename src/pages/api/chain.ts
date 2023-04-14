@@ -6,30 +6,24 @@ import {
 } from "../../utils/chain";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import type { RequestBody } from "../../utils/interfaces";
 
 export const config = {
   runtime: "edge",
 };
 
-interface RequestBody {
-  customApiKey: string;
-  goal: string;
-}
-
-export default async (request: NextRequest) => {
-  let data: RequestBody | null = null;
+const handler = async (request: NextRequest) => {
   try {
-    data = (await request.json()) as RequestBody;
-    const completion = await startGoalAgent(
-      createModel(data.customApiKey),
-      data.goal
-    );
+    const { modelSettings, goal } = (await request.json()) as RequestBody;
+    const completion = await startGoalAgent(createModel(modelSettings), goal);
 
-    const tasks = extractArray(completion.text as string).filter(
+    const newTasks = extractArray(completion.text as string).filter(
       realTasksFilter
     );
-    return NextResponse.json({ tasks });
+    return NextResponse.json({ newTasks });
   } catch (e) {}
 
   return NextResponse.error();
 };
+
+export default handler;

@@ -58,7 +58,7 @@ const ChatWindow = ({ messages, children, className }: ChatWindowProps) => {
   return (
     <div
       className={
-        "border-translucent flex w-full flex-col rounded-3xl border-2 border-white/20 bg-zinc-900 text-white shadow-2xl drop-shadow-lg " +
+        "border-translucent flex w-full flex-col rounded-2xl border-2 border-white/20 bg-zinc-900 text-white shadow-2xl drop-shadow-lg " +
         (className ?? "")
       }
     >
@@ -74,25 +74,27 @@ const ChatWindow = ({ messages, children, className }: ChatWindowProps) => {
         ))}
         {children}
 
-        {messages.length === 0 ? (
-          <Expand delay={0.8} type="spring">
-            <ChatMessage
-              message={{
-                type: "system",
-                value:
-                  "> Create an agent by adding a name / goal, and hitting deploy!",
-              }}
-            />
-            <ChatMessage
-              message={{
-                type: "system",
-                value:
-                  "📢 Please first provide your own OpenAI API key via the settings tab!",
-              }}
-            />
-          </Expand>
-        ) : (
-          ""
+        {messages.length === 0 && (
+          <>
+            <Expand delay={0.8} type="spring">
+              <ChatMessage
+                message={{
+                  type: "system",
+                  value:
+                    "> Create an agent by adding a name / goal, and hitting deploy!",
+                }}
+              />
+            </Expand>
+            <Expand delay={0.9} type="spring">
+              <ChatMessage
+                message={{
+                  type: "system",
+                  value:
+                    "📢 Please first provide your own OpenAI API key via the settings tab!",
+                }}
+              />
+            </Expand>
+          </>
         )}
       </div>
     </div>
@@ -131,14 +133,7 @@ const MacWindowHeader = ({ messages }: { messages: Message[] }) => {
     }
 
     const text = element.innerText;
-    navigator.clipboard.writeText(text).then(
-      () => {
-        console.info("Copied text to clipboard");
-      },
-      () => {
-        console.error("Failed to copy text to clipboard");
-      }
-    );
+    void navigator.clipboard.writeText(text);
   };
 
   return (
@@ -149,29 +144,34 @@ const MacWindowHeader = ({ messages }: { messages: Message[] }) => {
       <PopIn delay={0.5}>
         <div className="h-3 w-3 rounded-full bg-yellow-500" />
       </PopIn>
-      <PopIn delay={0.6} className="flex-grow">
+      <PopIn delay={0.6}>
         <div className="h-3 w-3 rounded-full bg-green-500" />
       </PopIn>
+      <div className="flex flex-grow"></div>
+      <PopIn delay={0.7}>
+        <div
+          className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 text-xs hover:bg-white/10"
+          onClick={(): void => saveElementAsImage(messageListId)}
+        >
+          <FaSave size={12} />
+          <p className="font-mono">Save</p>
+        </div>
+      </PopIn>
 
-      <div
-        className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 hover:bg-white/10"
-        onClick={(): void => saveElementAsImage(messageListId)}
-      >
-        <FaSave size={12} />
-        <p className="font-mono">Save</p>
-      </div>
-      <div
-        className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 hover:bg-white/10"
-        onClick={(): void => copyElementText(messageListId)}
-      >
-        <FaClipboard size={12} />
-        <p className="font-mono">Copy</p>
-      </div>
+      <PopIn delay={0.8}>
+        <div
+          className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 text-xs hover:bg-white/10"
+          onClick={(): void => copyElementText(messageListId)}
+        >
+          <FaClipboard size={12} />
+          <p className="font-mono">Copy</p>
+        </div>
       {messages && messages.length > 0 && (
         <div className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 hover:bg-white/10">
           {DownloadPDF("agent-gpt-messages", messages)}{" "}
         </div>
       )}
+      </PopIn>
     </div>
   );
 };
@@ -216,14 +216,19 @@ const ChatMessage = ({ message }: { message: Message }) => {
           (Restart if this takes more than 30 seconds)
         </span>
       )}
-      <div className="prose ml-2 max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeHighlight]}
-        >
-          {message.value}
-        </ReactMarkdown>
-      </div>
+
+      {message.type == "action" ? (
+        <div className="prose ml-2 max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
+          >
+            {message.value}
+          </ReactMarkdown>
+        </div>
+      ) : (
+        <span>{message.value}</span>
+      )}
 
       <div className="relative">
         {copied ? (
@@ -247,7 +252,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
 const getMessageIcon = (message: Message) => {
   switch (message.type) {
     case "goal":
-      return <FaStar className="text-yellow-400" />;
+      return <FaStar className="text-yellow-300" />;
     case "task":
       return <FaListAlt className="text-gray-300" />;
     case "thinking":
