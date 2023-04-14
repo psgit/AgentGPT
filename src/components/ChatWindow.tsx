@@ -177,10 +177,15 @@ const MacWindowHeader = ({ messages }: { messages: Message[] }) => {
           <p className="font-mono">Copy</p>
         </div>
       </PopIn>
+
       {messages && messages.length > 0 && (
-        <div className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 hover:bg-white/10">
-          {DownloadPDF("agent-gpt-messages", messages)}{" "}
-        </div>
+        <PopIn delay={0.8}>
+          <div className="mr-1 flex cursor-pointer items-center gap-2 rounded-full border-2 border-white/30 p-1 px-2 text-xs hover:bg-white/10">
+            <p className="font-mono">
+              {DownloadPDF("agent-gpt-messages", messages)}
+            </p>
+          </div>
+        </PopIn>
       )}
     </div>
   );
