@@ -1,16 +1,16 @@
-import { Message } from "./ChatWindow";
+import type { Message } from '../types/agentTypes';
 
-interface Task {
+export interface Task {
   name: string;
   executions: Execution[];
 }
 
-interface Execution {
+export interface Execution {
   response: string;
   tasks: Task[];
 }
 
-interface Agent {
+export interface Agent {
   name: string;
   goal: string;
   tasks: Task[];
@@ -21,12 +21,26 @@ const createTask = ({ message }: { message: Message }): Task => {
 };
 
 const createAgent = ({ messages }: { messages: Message[] }): Agent => {
+  let agent: Agent = undefined;
+  let tasks = {};
   messages.map((message: Message) => {
-    if (message.type === "goal")
-      return {
-        name: "test",
-        goal: message.value,
-        tasks: [],
-      };
+    switch (message.type) {
+      case 'goal':
+        agent = {
+          name: 'test',
+          goal: message.value,
+          tasks: [],
+        };
+      case 'task':
+        if (agent) {
+          let task = createTask(message);
+          tasks[task.name] = task;
+          agent.tasks.add(task);
+        }
+      case 'action':
+    }
   });
+  return agent;
 };
+
+export default createAgent;
