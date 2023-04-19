@@ -25,7 +25,7 @@ import PDFButton from './pdf/PDFButton';
 import FadeIn from './motions/FadeIn';
 import type { Message } from '../types/agentTypes';
 import clsx from 'clsx';
-import TrerViewButton from './MessagesTreeView';
+import TreeViewButton from './MessagesTreeView';
 
 interface ChatWindowProps extends HeaderProps {
   children?: ReactNode;
