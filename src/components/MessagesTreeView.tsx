@@ -1,4 +1,5 @@
 import type { Message } from '../types/agentTypes';
+import WindowButton from '../WindowButton';
 
 export interface Task {
   name: string;
