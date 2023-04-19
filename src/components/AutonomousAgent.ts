@@ -1,11 +1,17 @@
-import type { Message } from "./ChatWindow";
 import axios from "axios";
 import type { ModelSettings } from "../utils/types";
+import AgentService from "../services/agent-service";
 import {
-  createAgent,
-  executeAgent,
-  startAgent,
-} from "../services/agent-service";
+  DEFAULT_MAX_LOOPS_CUSTOM_API_KEY,
+  DEFAULT_MAX_LOOPS_FREE,
+  DEFAULT_MAX_LOOPS_PAID,
+} from "../utils/constants";
+import type { Session } from "next-auth";
+import type { Message } from "../types/agentTypes";
+import { env } from "../env/client.mjs";
+
+const TIMEOUT_LONG = 1000;
+const TIMOUT_SHORT = 800;
 
 class AutonomousAgent {
   name: string;
@@ -14,22 +20,25 @@ class AutonomousAgent {
   completedTasks: string[] = [];
   modelSettings: ModelSettings;
   isRunning = true;
-  sendMessage: (message: Message) => void;
+  renderMessage: (message: Message) => void;
   shutdown: () => void;
   numLoops = 0;
+  session?: Session;
 
   constructor(
     name: string,
     goal: string,
-    addMessage: (message: Message) => void,
+    renderMessage: (message: Message) => void,
     shutdown: () => void,
-    modelSettings: ModelSettings
+    modelSettings: ModelSettings,
+    session?: Session
   ) {
     this.name = name;
     this.goal = goal;
-    this.sendMessage = addMessage;
+    this.renderMessage = renderMessage;
     this.shutdown = shutdown;
     this.modelSettings = modelSettings;
+    this.session = session;
   }
 
   async run() {
@@ -40,16 +49,12 @@ class AutonomousAgent {
     try {
       this.tasks = await this.getInitialTasks();
       for (const task of this.tasks) {
-        await new Promise((r) => setTimeout(r, 800));
+        await new Promise((r) => setTimeout(r, TIMOUT_SHORT));
         this.sendTaskMessage(task);
       }
     } catch (e) {
       console.log(e);
-      this.sendErrorMessage(
-        this.modelSettings.customApiKey !== ""
-          ? `ERROR retrieving initial tasks array. Make sure your API key is not the free tier, make your goal more clear, or revise your goal such that it is within our model's policies to run. Shutting Down.`
-          : `ERROR retrieving initial tasks array. Retry, make your goal more clear, or revise your goal such that it is within our model's policies to run. Shutting Down.`
-      );
+      this.sendErrorMessage(getMessageFromError(e));
       this.shutdown();
       return;
     }
@@ -62,8 +67,6 @@ class AutonomousAgent {
     console.log(this.tasks);
 
     if (!this.isRunning) {
-      this.sendManualShutdownMessage();
-      this.shutdown();
       return;
     }
 
@@ -74,7 +77,7 @@ class AutonomousAgent {
     }
 
     this.numLoops += 1;
-    const maxLoops = this.modelSettings.customApiKey === "" ? 4 : 50;
+    const maxLoops = this.maxLoops();
     if (this.numLoops > maxLoops) {
       this.sendLoopMessage();
       this.shutdown();
@@ -82,7 +85,7 @@ class AutonomousAgent {
     }
 
     // Wait before starting
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, TIMEOUT_LONG));
 
     // Execute first task
     // Get and remove first task
@@ -94,7 +97,7 @@ class AutonomousAgent {
     this.sendExecutionMessage(currentTask as string, result);
 
     // Wait before adding tasks
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, TIMEOUT_LONG));
     this.sendThinkingMessage();
 
     // Add new tasks
@@ -105,7 +108,7 @@ class AutonomousAgent {
       );
       this.tasks = this.tasks.concat(newTasks);
       for (const task of newTasks) {
-        await new Promise((r) => setTimeout(r, 800));
+        await new Promise((r) => setTimeout(r, TIMOUT_SHORT));
         this.sendTaskMessage(task);
       }
 
@@ -123,12 +126,25 @@ class AutonomousAgent {
     await this.loop();
   }
 
+  private maxLoops() {
+    const defaultLoops = !!this.session?.user.subscriptionId
+      ? DEFAULT_MAX_LOOPS_PAID
+      : DEFAULT_MAX_LOOPS_FREE;
+
+    return !!this.modelSettings.customApiKey
+      ? this.modelSettings.customMaxLoops || DEFAULT_MAX_LOOPS_CUSTOM_API_KEY
+      : defaultLoops;
+  }
+
   async getInitialTasks(): Promise<string[]> {
     if (this.shouldRunClientSide()) {
-      return await startAgent(this.modelSettings, this.goal);
+      if (!env.NEXT_PUBLIC_FF_MOCK_MODE_ENABLED) {
+        await testConnection(this.modelSettings);
+      }
+      return await AgentService.startGoalAgent(this.modelSettings, this.goal);
     }
 
-    const res = await axios.post(`/api/chain`, {
+    const res = await axios.post(`/api/start`, {
       modelSettings: this.modelSettings,
       goal: this.goal,
     });
@@ -142,7 +158,7 @@ class AutonomousAgent {
     result: string
   ): Promise<string[]> {
     if (this.shouldRunClientSide()) {
-      return await createAgent(
+      return await AgentService.createTasksAgent(
         this.modelSettings,
         this.goal,
         this.tasks,
@@ -166,7 +182,11 @@ class AutonomousAgent {
 
   async executeTask(task: string): Promise<string> {
     if (this.shouldRunClientSide()) {
-      return await executeAgent(this.modelSettings, this.goal, task);
+      return await AgentService.executeTaskAgent(
+        this.modelSettings,
+        this.goal,
+        task
+      );
     }
 
     const res = await axios.post(`/api/execute`, {
@@ -183,7 +203,16 @@ class AutonomousAgent {
   }
 
   stopAgent() {
+    this.sendManualShutdownMessage();
     this.isRunning = false;
+    this.shutdown();
+    return;
+  }
+
+  sendMessage(message: Message) {
+    if (this.isRunning) {
+      this.renderMessage(message);
+    }
   }
 
   sendGoalMessage() {
@@ -195,7 +224,7 @@ class AutonomousAgent {
       type: "system",
       value:
         this.modelSettings.customApiKey !== ""
-          ? `This agent has been running for too long (25 Loops). To save your wallet this agent is shutting down. In the future, the number of iterations will be configurable.`
+          ? `This agent has maxed out on loops. To save your wallet, this agent is shutting down. You can configure the number of loops in the advanced settings.`
           : "We're sorry, because this is a demo, we cannot have our agents running for too long. Note, if you desire longer runs, please provide your own API key in Settings. Shutting down.",
     });
   }
@@ -242,5 +271,42 @@ class AutonomousAgent {
     });
   }
 }
+
+const testConnection = async (modelSettings: ModelSettings) => {
+  // A dummy connection to see if the key is valid
+  // Can't use LangChain / OpenAI libraries to test because they have retries in place
+  return await axios.post(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      model: modelSettings.customModelName,
+      messages: [{ role: "user", content: "Say this is a test" }],
+      max_tokens: 7,
+      temperature: 0,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${modelSettings.customApiKey}`,
+      },
+    }
+  );
+};
+
+const getMessageFromError = (e: unknown) => {
+  let message =
+    "ERROR accessing OpenAI APIs. Please check your API key or try again later";
+  if (axios.isAxiosError(e)) {
+    const axiosError = e;
+    if (axiosError.response?.status === 429) {
+      message = `ERROR using your OpenAI API key. You've exceeded your current quota, please check your plan and billing details.`;
+    }
+    if (axiosError.response?.status === 404) {
+      message = `ERROR your API key does not have GPT-4 access. You must first join OpenAI's wait-list. (This is different from ChatGPT Plus)`;
+    }
+  } else {
+    message = `ERROR retrieving initial tasks array. Retry, make your goal more clear, or revise your goal such that it is within our model's policies to run. Shutting Down.`;
+  }
+  return message;
+};
 
 export default AutonomousAgent;

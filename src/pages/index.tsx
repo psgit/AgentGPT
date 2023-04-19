@@ -1,8 +1,7 @@
+import React, { useEffect, useRef } from "react";
 import { type NextPage } from "next";
 import Badge from "../components/Badge";
 import DefaultLayout from "../layout/default";
-import React, { useEffect } from "react";
-import type { Message } from "../components/ChatWindow";
 import ChatWindow from "../components/ChatWindow";
 import Drawer from "../components/Drawer";
 import Input from "../components/Input";
@@ -14,38 +13,32 @@ import AutonomousAgent from "../components/AutonomousAgent";
 import Expand from "../components/motions/expand";
 import HelpDialog from "../components/HelpDialog";
 import SettingsDialog from "../components/SettingsDialog";
-import { useSession } from "next-auth/react";
-import { api } from "../utils/api";
-import { env } from "../env/client.mjs";
+import { GPT_35_TURBO, DEFAULT_MAX_LOOPS_FREE } from "../utils/constants";
 import { TaskWindow } from "../components/TaskWindow";
+import { useAuth } from "../hooks/useAuth";
+import type { Message } from "../types/agentTypes";
+import { useAgent } from "../hooks/useAgent";
 
 const Home: NextPage = () => {
-  const { data: session } = useSession();
+  const { session, status } = useAuth();
   const [name, setName] = React.useState<string>("");
   const [goalInput, setGoalInput] = React.useState<string>("");
   const [agent, setAgent] = React.useState<AutonomousAgent | null>(null);
   const [customApiKey, setCustomApiKey] = React.useState<string>("");
-  const [customModelName, setCustomModelName] = React.useState<string>("");
+  const [customModelName, setCustomModelName] =
+    React.useState<string>(GPT_35_TURBO);
+  const [customTemperature, setCustomTemperature] = React.useState<number>(0.9);
+  const [customMaxLoops, setCustomMaxLoops] = React.useState<number>(
+    DEFAULT_MAX_LOOPS_FREE
+  );
   const [shouldAgentStop, setShouldAgentStop] = React.useState(false);
-  const [tasks, setTasks] = React.useState<string[]>([]);
 
   const [messages, setMessages] = React.useState<Message[]>([]);
 
   const [showHelpDialog, setShowHelpDialog] = React.useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = React.useState(false);
-
-  // TODO: enable for crud
-  // const utils = api.useContext();
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  // const voidFunc = () => {};
-  // const createAgent = api.agent.create.useMutation({
-  //   onSuccess: (data) => {
-  //     utils.agent.getAll.setData(voidFunc(), (oldData) => [
-  //       ...(oldData ?? []),
-  //       data,
-  //     ]);
-  //   },
-  // });
+  const [hasSaved, setHasSaved] = React.useState(false);
+  const agentUtils = useAgent();
 
   useEffect(() => {
     const key = "agentgpt-modal-opened-new";
@@ -61,6 +54,11 @@ const Home: NextPage = () => {
     localStorage.setItem(key, JSON.stringify(true));
   }, []);
 
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    nameInputRef?.current?.focus();
+  }, []);
+
   useEffect(() => {
     if (agent == null) {
       setShouldAgentStop(false);
@@ -68,36 +66,50 @@ const Home: NextPage = () => {
   }, [agent]);
 
   const handleAddMessage = (message: Message) => {
-    if (message.type == "task") {
-      setTasks((tasks) => [...tasks, message.value]);
-    }
     setMessages((prev) => [...prev, message]);
   };
 
+  const tasks = messages.filter((message) => message.type === "task");
+
+  const disableDeployAgent = agent != null || name === "" || goalInput === ""
+
   const handleNewGoal = () => {
-    setTasks([]);
-    // TODO: enable for crud
-    // if (env.NEXT_PUBLIC_VERCEL_ENV != "production" && session?.user) {
-    //   createAgent.mutate({
-    //     name,
-    //     goal: goalInput,
-    //   });
-    // }
     const agent = new AutonomousAgent(
       name,
       goalInput,
       handleAddMessage,
       () => setAgent(null),
-      { customApiKey, customModelName }
+      { customApiKey, customModelName, customTemperature, customMaxLoops },
+      session ?? undefined
     );
     setAgent(agent);
+    setHasSaved(false);
+    setMessages([]);
     agent.run().then(console.log).catch(console.error);
   };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !disableDeployAgent) {
+      handleNewGoal()
+    }
+  }
 
   const handleStopAgent = () => {
     setShouldAgentStop(true);
     agent?.stopAgent();
   };
+
+  const proTitle = (
+    <>
+      AgentGPT<span className="ml-1 text-amber-500/90">Pro</span>
+    </>
+  );
+
+  const shouldShowSave =
+    status === "authenticated" &&
+    !agent?.isRunning &&
+    messages.length &&
+    !hasSaved;
 
   return (
     <DefaultLayout>
@@ -106,21 +118,27 @@ const Home: NextPage = () => {
         close={() => setShowHelpDialog(false)}
       />
       <SettingsDialog
-        customApiKey={customApiKey}
-        setCustomApiKey={setCustomApiKey}
-        customModelName={customModelName}
-        setCustomModelName={setCustomModelName}
+        reactModelStates={{
+          customApiKey,
+          setCustomApiKey,
+          customModelName,
+          setCustomModelName,
+          customTemperature,
+          setCustomTemperature,
+          customMaxLoops,
+          setCustomMaxLoops,
+        }}
         show={showSettingsDialog}
         close={() => setShowSettingsDialog(false)}
       />
-      <main className="flex h-screen w-screen flex-row">
+      <main className="flex min-h-screen flex-row">
         <Drawer
           showHelp={() => setShowHelpDialog(true)}
           showSettings={() => setShowSettingsDialog(true)}
         />
         <div
           id="content"
-          className="z-10 flex h-screen w-full items-center justify-center p-2 px-2 sm:px-4 md:px-10"
+          className="z-10 flex min-h-screen w-full items-center justify-center p-2 px-2 sm:px-4 md:px-10"
         >
           <div
             id="layout"
@@ -149,13 +167,35 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <Expand className="w-full">
-              <ChatWindow className="mt-4" messages={messages} />
+            <Expand className="flex w-full flex-row">
+              <ChatWindow
+                className="sm:mt-4"
+                messages={messages}
+                title={session?.user.subscriptionId ? proTitle : "AgentGPT"}
+                showDonation={
+                  status != "loading" && !session?.user.subscriptionId
+                }
+                onSave={
+                  shouldShowSave
+                    ? (format) => {
+                        setHasSaved(true);
+                        agentUtils.saveAgent({
+                          goal: goalInput,
+                          name: name,
+                          tasks: messages,
+                        });
+                      }
+                    : undefined
+                }
+                scrollToBottom
+              />
+              {tasks.length > 0 && <TaskWindow tasks={tasks} />}
             </Expand>
 
-            <div className="mt-5 flex w-full flex-col gap-2 sm:mt-10">
+            <div className="flex w-full flex-col gap-2 sm:mt-4 md:mt-10">
               <Expand delay={1.2}>
                 <Input
+                  inputRef={nameInputRef}
                   left={
                     <>
                       <FaRobot />
@@ -165,6 +205,7 @@ const Home: NextPage = () => {
                   value={name}
                   disabled={agent != null}
                   onChange={(e) => setName(e.target.value)}
+                  onKeyDown={(e) => handleKeyPress(e)}
                   placeholder="AgentGPT"
                 />
               </Expand>
@@ -179,6 +220,7 @@ const Home: NextPage = () => {
                   disabled={agent != null}
                   value={goalInput}
                   onChange={(e) => setGoalInput(e.target.value)}
+                  onKeyDown={(e) => handleKeyPress(e)}
                   placeholder="Make the world a better place."
                 />
               </Expand>
@@ -186,7 +228,7 @@ const Home: NextPage = () => {
 
             <Expand delay={1.4} className="flex gap-2">
               <Button
-                disabled={agent != null || name === "" || goalInput === ""}
+                disabled={disableDeployAgent}
                 onClick={handleNewGoal}
                 className="sm:mt-10"
               >
@@ -199,7 +241,6 @@ const Home: NextPage = () => {
                   </>
                 )}
               </Button>
-
               <Button
                 disabled={agent == null}
                 onClick={handleStopAgent}
@@ -217,7 +258,6 @@ const Home: NextPage = () => {
               </Button>
             </Expand>
           </div>
-          {tasks.length > 0 && <TaskWindow tasks={tasks} />}
         </div>
       </main>
     </DefaultLayout>
