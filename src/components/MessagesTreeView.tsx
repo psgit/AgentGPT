@@ -44,7 +44,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   return agent;
 };
 
-export const TreeViewButton = ({ messages }: { messages: Message[] }) => {
+const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const mm = messages;
 
   const saveTreeView = () => {
@@ -63,3 +63,5 @@ export const TreeViewButton = ({ messages }: { messages: Message[] }) => {
     </>
   );
 };
+
+export default TreeViewButton;
