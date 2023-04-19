@@ -25,7 +25,7 @@ import PDFButton from './pdf/PDFButton';
 import FadeIn from './motions/FadeIn';
 import type { Message } from '../types/agentTypes';
 import clsx from 'clsx';
-import createAgent from './MessagesTreeView';
+import TrerViewButton from './MessagesTreeView';
 
 interface ChatWindowProps extends HeaderProps {
   children?: ReactNode;
@@ -204,11 +204,7 @@ const MacWindowHeader = (props: HeaderProps) => {
         text={'Copy'}
       />
       <PDFButton messages={props.messages} />
-      <WindowButton
-        delay={0.8}
-        onClick={(): void => alert(JSON.stringify(createAgent(props.messages)))}
-        text={'Treeview'}
-      />
+      <TreeViewButton messages={props.messages} />
     </div>
   );
 };

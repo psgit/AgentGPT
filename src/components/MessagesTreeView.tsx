@@ -43,4 +43,22 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   return agent;
 };
 
-export default createAgent;
+export const TreeViewButton = ({ messages }: { messages: Message[] }) => {
+  const mm = messages;
+
+  const saveTreeView = () => {
+    alert(JSON.stringify(createAgent(mm)));
+  };
+
+  return (
+    <>
+      <WindowButton
+        delay={0.8}
+        onClick={() => {
+          saveTreeView();
+        }}
+        text={'TreeView'}
+      />
+    </>
+  );
+};
