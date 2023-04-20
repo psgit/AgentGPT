@@ -74,7 +74,7 @@ const convertToDataUrl = (str: string): string => {
 };
 
 const convertAgentToDataUrl = (agent: Agent): string => {
-  return convertToDataUrl(JSON.stringify(createAgent(messages)));
+  return convertToDataUrl(JSON.stringify(agent));
 };
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
