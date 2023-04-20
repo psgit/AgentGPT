@@ -99,7 +99,7 @@ const convertAgentToMarkdown = (agent: Agent): any => {
       content: [convertToJSON(agent).replace(/[\""]/g, '\\"')],
     },
   });
-  return md;
+  return json2md(md);
 };
 
 const convertAgentToMarkdownDataUrl = (agent: Agent): string => {
