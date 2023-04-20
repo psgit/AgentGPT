@@ -71,7 +71,7 @@ const encodeBase64 = (str: string): string =>
   Buffer.from(str, 'binary').toString('base64');
 
 const convertToDataUrl = (str: string): string => {
-  return 'data: application/json,' + str;
+  return 'data: application/json;base64,' + encodeBase64(str);
 };
 
 const convertAgentToDataUrl = (agent: Agent): string => {
