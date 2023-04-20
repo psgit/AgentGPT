@@ -32,7 +32,7 @@ const createTask = (message: Message): Task => {
   return { name: message.value, executions: [] };
 };
 
-const createAgent = (messages: Message[]): Agent => {
+const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   let agent: Agent = undefined;
   let tasks = {};
   messages.map((message: Message) => {
@@ -70,7 +70,7 @@ const createAgent = (messages: Message[]): Agent => {
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    alert(JSON.stringify(createAgent(messages)));
+    alert(JSON.stringify(createAgent({ messages })));
   };
 
   return (
