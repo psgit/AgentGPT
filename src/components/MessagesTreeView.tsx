@@ -98,7 +98,7 @@ const convertAgentToMarkdown = (agent: Agent): any => {
   md.push({
     code: {
       language: "json",
-      content: [convertToJSON(agent).replace(/[\""]/g, '\\"')],
+      content: [convertToJSON(agent)],
     },
   });
   return json2md(md);
