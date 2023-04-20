@@ -1,5 +1,6 @@
 import type { Message } from '../types/agentTypes';
 import WindowButton from './WindowButton';
+import { FaFileCode } from 'react-icons/fa';
 
 const executing = 'Executing "';
 
