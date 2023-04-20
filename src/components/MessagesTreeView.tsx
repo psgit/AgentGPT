@@ -1,6 +1,8 @@
 import type { Message } from '../types/agentTypes';
 import WindowButton from './WindowButton';
 
+const executing = 'Executing "';
+
 export interface Task {
   name: string;
   executions: Execution[];
@@ -16,6 +18,15 @@ export interface Agent {
   goal: string;
   tasks: Task[];
 }
+
+const extractTaskName = ({ message }: { message: Message }): string => {
+  if (message.info && message.info.startsWith('Executing')) {
+    return message.info.substr(
+      executing.length,
+      message.info.length - executing.length - 1
+    );
+  }
+};
 
 const createTask = ({ message }: { message: Message }): Task => {
   return { name: message.value, executions: [] };
@@ -45,7 +56,16 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
         }
         break;
       }
-      case 'action':
+      case 'action': {
+        const taskName = extractTaskName(message);
+        if (taskName) {
+          tasks[taskName]?.executions.push({
+            response: message.value,
+            tasks: [],
+          });
+        }
+        break;
+      }
     }
   });
   return agent;
