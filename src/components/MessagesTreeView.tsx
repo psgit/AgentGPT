@@ -1,7 +1,9 @@
 import type { Message } from "../types/agentTypes";
 import WindowButton from "./WindowButton";
 import { FaFileCode } from "react-icons/fa";
-import json2md from "json2md";
+
+declare function require(name: string);
+const json2md = require("json2md");
 
 const executing = 'Executing "';
 const JSON_MIME_TYPE = "application/json";
