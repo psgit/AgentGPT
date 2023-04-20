@@ -71,7 +71,7 @@ const encodeBase64 = (str: string): string =>
   Buffer.from(str, 'binary').toString('base64');
 
 const convertToDataUrl = (str: string): string => {
-  return 'data: application/json, ' + encodeBase64(str);
+  return 'data: application/json,' + str;
 };
 
 const convertAgentToDataUrl = (agent: Agent): string => {
@@ -83,8 +83,9 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
     const agent = createAgent(messages);
     alert(JSON.stringify(agent));
     const link = document.createElement('a');
-    link.href = convertAgentToDataUrl(agent);
-    link.download = 'my-document.json.txt';
+    const url = convertAgentToDataUrl(agent);
+    link.href = url;
+    link.download = 'agent-treeview';
     link.click();
     URL.revokeObjectURL(url);
   };
