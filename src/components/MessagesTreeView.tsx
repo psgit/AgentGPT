@@ -33,8 +33,11 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
           tasks: [],
         };
       case 'task':
-        if (agent) {
-          let task = createTask(message);
+        if (agent && message.value) {
+          let task = {
+            name: message.value,
+            executions: [],
+          };
           tasks[task.name] = task;
           agent.tasks.add(task);
         }
@@ -54,7 +57,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
       <WindowButton
         delay={0.8}
         onClick={() => {
-          saveTreeView({messages});
+          saveTreeView({ messages });
         }}
         text={'TreeView'}
       />
