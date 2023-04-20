@@ -79,7 +79,7 @@ const convertAgentToDataUrl = (agent: Agent): string => {
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    const agent = createAgent({ messages });
+    const agent = createAgent(messages);
     alert(JSON.stringify(agent));
     const link = document.createElement('a');
     link.href = convertAgentToDataUrl(agent);
@@ -95,6 +95,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
         onClick={() => {
           saveTreeView({ messages });
         }}
+        icon={<FaFileCode size={12} />}
         text={'TreeView'}
       />
     </>
