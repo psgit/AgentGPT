@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FaBrain,
   FaClipboard,
@@ -10,22 +10,22 @@ import {
   FaPlayCircle,
   FaSave,
   FaStar,
-} from 'react-icons/fa';
-import PopIn from './motions/popin';
-import Expand from './motions/expand';
-import * as htmlToImage from 'html-to-image';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
-import 'highlight.js/styles/github-dark.css';
-import Button from './Button';
-import { useRouter } from 'next/router';
-import WindowButton from './WindowButton';
-import PDFButton from './pdf/PDFButton';
-import FadeIn from './motions/FadeIn';
-import type { Message } from '../types/agentTypes';
-import clsx from 'clsx';
-import TreeViewButton from './MessagesTreeView';
+} from "react-icons/fa";
+import PopIn from "./motions/popin";
+import Expand from "./motions/expand";
+import * as htmlToImage from "html-to-image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
+import Button from "./Button";
+import { useRouter } from "next/router";
+import WindowButton from "./WindowButton";
+import PDFButton from "./pdf/PDFButton";
+import FadeIn from "./motions/FadeIn";
+import type { Message } from "../types/agentTypes";
+import clsx from "clsx";
+import TreeViewButton from "./MessagesTreeView";
 
 interface ChatWindowProps extends HeaderProps {
   children?: ReactNode;
@@ -35,7 +35,7 @@ interface ChatWindowProps extends HeaderProps {
   scrollToBottom?: boolean;
 }
 
-const messageListId = 'chat-window-message-list';
+const messageListId = "chat-window-message-list";
 
 const ChatWindow = ({
   messages,
@@ -73,16 +73,16 @@ const ChatWindow = ({
   return (
     <div
       className={
-        'border-translucent flex w-full flex-col rounded-2xl border-2 border-white/20 bg-zinc-900 text-white shadow-2xl drop-shadow-lg ' +
-        (className ?? '')
+        "border-translucent flex w-full flex-col rounded-2xl border-2 border-white/20 bg-zinc-900 text-white shadow-2xl drop-shadow-lg " +
+        (className ?? "")
       }
     >
       <MacWindowHeader title={title} messages={messages} onSave={onSave} />
       <div
         className={clsx(
-          'mb-2 mr-2 ',
-          (fullscreen && 'max-h-[75vh] flex-grow overflow-auto') ||
-            'window-heights'
+          "mb-2 mr-2 ",
+          (fullscreen && "max-h-[75vh] flex-grow overflow-auto") ||
+            "window-heights"
         )}
         ref={scrollRef}
         onScroll={handleScroll}
@@ -100,18 +100,18 @@ const ChatWindow = ({
             <Expand delay={0.8} type="spring">
               <ChatMessage
                 message={{
-                  type: 'system',
+                  type: "system",
                   value:
-                    '> Create an agent by adding a name / goal, and hitting deploy!',
+                    "> Create an agent by adding a name / goal, and hitting deploy!",
                 }}
               />
             </Expand>
             <Expand delay={0.9} type="spring">
               <ChatMessage
                 message={{
-                  type: 'system',
+                  type: "system",
                   value:
-                    '📢 You can provide your own OpenAI API key in the settings tab for increased limits!',
+                    "📢 You can provide your own OpenAI API key in the settings tab for increased limits!",
                 }}
               />
               {showDonation && (
@@ -144,15 +144,15 @@ const MacWindowHeader = (props: HeaderProps) => {
       .toJpeg(element, {
         height: element.scrollHeight,
         style: {
-          overflowY: 'visible',
-          maxHeight: 'none',
-          border: 'none',
+          overflowY: "visible",
+          maxHeight: "none",
+          border: "none",
         },
       })
       .then((dataUrl) => {
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = 'agent-gpt-output.png';
+        link.download = "agent-gpt-output.png";
         link.click();
       })
       .catch(console.error);
@@ -185,23 +185,23 @@ const MacWindowHeader = (props: HeaderProps) => {
       {props.onSave && (
         <WindowButton
           delay={0.8}
-          onClick={() => props.onSave?.('db')}
+          onClick={() => props.onSave?.("db")}
           icon={<FaSave size={12} />}
-          text={'Save'}
+          text={"Save"}
         />
       )}
       <WindowButton
         delay={0.7}
         onClick={(): void => saveElementAsImage(messageListId)}
         icon={<FaImage size={12} />}
-        text={'Image'}
+        text={"Image"}
       />
 
       <WindowButton
         delay={0.8}
         onClick={(): void => copyElementText(messageListId)}
         icon={<FaClipboard size={12} />}
-        text={'Copy'}
+        text={"Copy"}
       />
       <PDFButton messages={props.messages} />
       <TreeViewButton messages={props.messages} />
@@ -235,7 +235,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
       onMouseLeave={() => setShowCopy(false)}
       onClick={handleCopyClick}
     >
-      {message.type != 'system' && (
+      {message.type != "system" && (
         // Avoid for system messages as they do not have an icon and will cause a weird space
         <>
           <div className="mr-2 inline-block h-[0.9em]">
@@ -245,13 +245,13 @@ const ChatMessage = ({ message }: { message: Message }) => {
         </>
       )}
 
-      {message.type == 'thinking' && (
+      {message.type == "thinking" && (
         <span className="italic text-zinc-400">
           (Restart if this takes more than 30 seconds)
         </span>
       )}
 
-      {message.type == 'action' ? (
+      {message.type == "action" ? (
         <div className="prose ml-2 max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -272,7 +272,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
         ) : (
           <span
             className={`absolute bottom-0 right-0 rounded-full border-2 border-white/30 bg-zinc-800 p-1 px-2 ${
-              showCopy ? 'visible' : 'hidden'
+              showCopy ? "visible" : "hidden"
             }`}
           >
             <FaCopy className="text-white-300 cursor-pointer" />
@@ -297,7 +297,7 @@ const DonationMessage = () => {
         <Button
           className="sm:text m-0 rounded-full text-sm "
           onClick={() =>
-            void router.push('https://github.com/sponsors/reworkd-admin')
+            void router.push("https://github.com/sponsors/reworkd-admin")
           }
         >
           Support now 🚀
@@ -309,27 +309,27 @@ const DonationMessage = () => {
 
 const getMessageIcon = (message: Message) => {
   switch (message.type) {
-    case 'goal':
+    case "goal":
       return <FaStar className="text-yellow-300" />;
-    case 'task':
+    case "task":
       return <FaListAlt className="text-gray-300" />;
-    case 'thinking':
+    case "thinking":
       return <FaBrain className="mt-[0.1em] text-pink-400" />;
-    case 'action':
+    case "action":
       return <FaPlayCircle className="text-green-500" />;
   }
 };
 
 const getMessagePrefix = (message: Message) => {
   switch (message.type) {
-    case 'goal':
-      return 'Embarking on a new goal:';
-    case 'task':
-      return 'Added task:';
-    case 'thinking':
-      return 'Thinking...';
-    case 'action':
-      return message.info ? message.info : 'Executing:';
+    case "goal":
+      return "Embarking on a new goal:";
+    case "task":
+      return "Added task:";
+    case "thinking":
+      return "Thinking...";
+    case "action":
+      return message.info ? message.info : "Executing:";
   }
 };
 

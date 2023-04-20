@@ -1,6 +1,6 @@
-import type { Message } from '../types/agentTypes';
-import WindowButton from './WindowButton';
-import { FaFileCode } from 'react-icons/fa';
+import type { Message } from "../types/agentTypes";
+import WindowButton from "./WindowButton";
+import { FaFileCode } from "react-icons/fa";
 
 const executing = 'Executing "';
 
@@ -20,7 +20,7 @@ export interface Agent {
 }
 
 const extractTaskName = (message: Message): string => {
-  if (message.info && message.info.startsWith('Executing')) {
+  if (message.info && message.info.startsWith("Executing")) {
     return message.info.substr(
       executing.length,
       message.info.length - executing.length - 1
@@ -37,15 +37,15 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   let tasks = {};
   messages.map((message: Message) => {
     switch (message.type) {
-      case 'goal': {
+      case "goal": {
         agent = {
-          name: 'TODO set agent name',
+          name: "TODO set agent name",
           goal: message.value,
           tasks: [],
         };
         break;
       }
-      case 'task': {
+      case "task": {
         if (agent && message.value) {
           let task = createTask(message);
           tasks[task.name] = task;
@@ -53,7 +53,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
         }
         break;
       }
-      case 'action': {
+      case "action": {
         const taskName = extractTaskName(message);
         if (taskName) {
           tasks[taskName]?.executions.push({
@@ -68,10 +68,10 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
 };
 
 const encodeBase64 = (str: string): string =>
-  Buffer.from(str, 'binary').toString('base64');
+  Buffer.from(str, "binary").toString("base64");
 
 const convertToDataUrl = (str: string): string => {
-  return 'data: application/json;base64,' + encodeBase64(str);
+  return "data: application/json;base64," + encodeBase64(str);
 };
 
 const convertAgentToDataUrl = (agent: Agent): string => {
@@ -81,10 +81,10 @@ const convertAgentToDataUrl = (agent: Agent): string => {
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
     const agent = createAgent(messages);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     const url = convertAgentToDataUrl(agent);
     link.href = url;
-    link.download = 'agent-treeview';
+    link.download = "agent-treeview";
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -97,7 +97,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
           saveTreeView({ messages });
         }}
         icon={<FaFileCode size={12} />}
-        text={'TreeView'}
+        text={"TreeView"}
       />
     </>
   );
