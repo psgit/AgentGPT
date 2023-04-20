@@ -38,7 +38,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
     switch (message.type) {
       case 'goal': {
         agent = {
-          name: 'test',
+          name: 'TODO set agent name',
           goal: message.value,
           tasks: [],
         };
@@ -66,9 +66,26 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   return agent;
 };
 
+const encodeBase64 = (str: string): string =>
+  Buffer.from(str, 'binary').toString('base64');
+
+const convertToDataUrl = (str: string): string => {
+  return 'data: application/json, ' + encodeBase64(str);
+};
+
+const convertAgentToDataUrl = (agent: Agent): string => {
+  return convertToDataUrl(JSON.stringify(createAgent(messages)));
+};
+
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    alert(JSON.stringify(createAgent(messages)));
+    const agent = createAgent({ messages });
+    alert(JSON.stringify(agent));
+    const link = document.createElement('a');
+    link.href = convertAgentToDataUrl(agent);
+    link.download = 'my-document.json.txt';
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
