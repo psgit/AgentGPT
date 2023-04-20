@@ -86,19 +86,25 @@ const convertAgentToJSONDataUrl = (agent: Agent): string => {
 };
 
 const convertAgentToMarkdown = (agent: Agent): any => {
-  const md = [{ h1: "Agent " + agent.name }, { h2: "Goal " + agent.goal }];
+  const md = [{ h1: "Agent: " + agent.name }, { h2: "Goal " + agent.goal }];
   for (let task of agent.tasks) {
-    md.push({ h3: "Task " + task.name });
+    md.push({ h3: "Task: " + task.name });
     for (let execution of task.executions) {
       md.push({ h4: "Execution: " + execution.response });
     }
   }
-  md.push({
-    code: {
-      language: "json",
-      content: [convertToJSON(agent)],
+  md.push([
+    {
+      hr: "",
     },
-  });
+    { p: "Below is a representation in JSON:" },
+    {
+      code: {
+        language: "json",
+        content: [convertToJSON(agent)],
+      },
+    },
+  ]);
   return json2md(md);
 };
 
