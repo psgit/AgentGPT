@@ -54,7 +54,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
       <WindowButton
         delay={0.8}
         onClick={() => {
-          saveTreeView({messabes});
+          saveTreeView({messages});
         }}
         text={'TreeView'}
       />
