@@ -26,13 +26,15 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
   let tasks = {};
   messages.map((message: Message) => {
     switch (message.type) {
-      case 'goal':
+      case 'goal': {
         agent = {
           name: 'test',
           goal: message.value,
           tasks: [],
         };
-      case 'task':
+        break;
+      }
+      case 'task': {
         if (agent && message.value) {
           let task = {
             name: message.value,
@@ -41,6 +43,8 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
           tasks[task.name] = task;
           agent.tasks.push(task);
         }
+        break;
+      }
       case 'action':
     }
   });
