@@ -10,7 +10,6 @@ export interface Task {
 
 export interface Execution {
   response: string;
-  tasks: Task[];
 }
 
 export interface Agent {
@@ -58,7 +57,6 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
         if (taskName) {
           tasks[taskName]?.executions.push({
             response: message.value,
-            tasks: [],
           });
         }
         break;
@@ -70,7 +68,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    alert(JSON.stringify(createAgent(messages)))
+    alert(JSON.stringify(createAgent(messages)));
   };
 
   return (
