@@ -4,6 +4,8 @@ import { FaFileCode } from "react-icons/fa";
 import json2md from "json2md";
 
 const executing = 'Executing "';
+const JSON_MIME_TYPE = "application/json";
+const MARKDOWN_MIME_TYPE = "text/markdown";
 
 export interface Task {
   name: string;
@@ -71,28 +73,44 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
 const encodeBase64 = (str: string): string =>
   Buffer.from(str, "binary").toString("base64");
 
-const convertToDataUrl = (str: string): string => {
-  return "data: application/json;base64," + encodeBase64(str);
+const convertToDataUrl = (mimeType: string, str: string): string => {
+  return "data: " + mimeType + ";base64," + encodeBase64(str);
 };
 
 const convertToJSON = (obj: any): string => {
   return JSON.stringify(obj, null, 2);
 };
 
-const convertAgentToDataUrl = (agent: Agent): string => {
-  return convertToDataUrl(convertToJSON(agent));
+const convertAgentToJSONDataUrl = (agent: Agent): string => {
+  return convertToDataUrl(JSON_MIME_TYPE, convertToJSON(agent));
 };
 
 const convertAgentToMarkdown = (agent: Agent): any => {
   const md = [{ h1: "Agent " + agent.name }, { h2: "Goal " + agent.goal }];
+  for (let task of agent.tasks) {
+    md.push({ h3: "Task " + task.name });
+    for (let execution of task.executions) {
+      md.push({ h4: "Execution: " + execution.response });
+    }
+  }
+  md.push({
+    code: {
+      language: "json",
+      content: [convertToJSON(agent).replace(/[\""]/g, '\\"')],
+    },
+  });
   return md;
+};
+
+const convertAgentToMarkdownDataUrl = (agent: Agent): string => {
+  return convertToDataUrl(MARKDOWN_MIME_TYPE, convertAgentToMarkdown(agent));
 };
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
     const agent = createAgent(messages);
     const link = document.createElement("a");
-    const url = convertAgentToDataUrl(agent);
+    const url = convertAgentToMarkdownDataUrl(agent);
     link.href = url;
     link.download = "agent-treeview";
     link.click();
