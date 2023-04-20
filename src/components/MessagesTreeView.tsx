@@ -70,7 +70,7 @@ const createAgent = (messages: Message[]): Agent => {
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    alert(JSON.stringify(createAgent(messages));
+    alert(JSON.stringify(createAgent(messages)));
   };
 
   return (
