@@ -1,6 +1,7 @@
 import type { Message } from "../types/agentTypes";
 import WindowButton from "./WindowButton";
 import { FaFileCode } from "react-icons/fa";
+import json2md from "json2md";
 
 const executing = 'Executing "';
 
@@ -74,8 +75,17 @@ const convertToDataUrl = (str: string): string => {
   return "data: application/json;base64," + encodeBase64(str);
 };
 
+const convertToJSON = (obj: any): string => {
+  return JSON.stringify(obj, null, 2);
+};
+
 const convertAgentToDataUrl = (agent: Agent): string => {
-  return convertToDataUrl(JSON.stringify(agent, null, 2));
+  return convertToDataUrl(convertToJSON(agent));
+};
+
+const convertAgentToMarkdown = (agent: Agent): any => {
+  const md = [{ h1: "Agent " + agent.name }, { h2: "Goal " + agent.goal }];
+  return md;
 };
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
