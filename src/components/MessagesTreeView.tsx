@@ -45,10 +45,8 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
 };
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
-  const mm = messages;
-
-  const saveTreeView = () => {
-    alert(JSON.stringify(createAgent(mm)));
+  const saveTreeView = (messages: Message[]) => {
+    alert(JSON.stringify(createAgent(messages)));
   };
 
   return (
@@ -56,7 +54,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
       <WindowButton
         delay={0.8}
         onClick={() => {
-          saveTreeView();
+          saveTreeView({messabes});
         }}
         text={'TreeView'}
       />
