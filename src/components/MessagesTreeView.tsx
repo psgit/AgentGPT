@@ -19,7 +19,7 @@ export interface Agent {
   tasks: Task[];
 }
 
-const extractTaskName = ({ message }: { message: Message }): string => {
+const extractTaskName = (message: Message): string => {
   if (message.info && message.info.startsWith('Executing')) {
     return message.info.substr(
       executing.length,
@@ -28,11 +28,11 @@ const extractTaskName = ({ message }: { message: Message }): string => {
   }
 };
 
-const createTask = ({ message }: { message: Message }): Task => {
+const createTask = (message: Message): Task => {
   return { name: message.value, executions: [] };
 };
 
-const createAgent = ({ messages }: { messages: Message[] }): Agent => {
+const createAgent = (messages: Message[]): Agent => {
   let agent: Agent = undefined;
   let tasks = {};
   messages.map((message: Message) => {
@@ -47,10 +47,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
       }
       case 'task': {
         if (agent && message.value) {
-          let task = {
-            name: message.value,
-            executions: [],
-          };
+          let task = createTask(message);
           tasks[task.name] = task;
           agent.tasks.push(task);
         }
@@ -73,7 +70,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
 
 const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   const saveTreeView = (messages: Message[]) => {
-    alert(JSON.stringify(createAgent(messages)));
+    alert(JSON.stringify(createAgent(messages));
   };
 
   return (
