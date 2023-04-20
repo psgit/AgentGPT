@@ -39,7 +39,7 @@ const createAgent = ({ messages }: { messages: Message[] }): Agent => {
             executions: [],
           };
           tasks[task.name] = task;
-          agent.tasks.add(task);
+          agent.tasks.push(task);
         }
       case 'action':
     }
