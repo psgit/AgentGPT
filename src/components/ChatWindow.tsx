@@ -126,7 +126,9 @@ const ChatWindow = ({
         {messages.length > 0 && (
           <>
             <Expand delay={0.8} type="spring">
-              <MessagesTree messages={{messages}} />
+              <div className="mx-2 my-1 rounded-lg border-[2px] border-white/10 bg-white/20 p-1 font-mono text-sm hover:border-[#1E88E5]/40 sm:mx-4 sm:p-3 sm:text-base">
+                <MessagesTree messages={{ messages }} />
+              </div>
             </Expand>
           </>
         )}
