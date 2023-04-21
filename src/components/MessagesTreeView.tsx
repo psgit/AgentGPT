@@ -112,7 +112,7 @@ const convertAgentToMarkdown = (agent: Agent): any => {
 const convertAgentToTree = (agent: Agent): any => {
   let idSeq: int = 1;
   const agentNode = { id: idSeq++, label: agent.name, parentId: null, items: [] };
-  const goalNode = {
+  let goalNode = {
     id: idSeq++,
     label: agent.goal,
     parentId: agentNode.id,
@@ -120,7 +120,7 @@ const convertAgentToTree = (agent: Agent): any => {
   };
   agentNode.items.push(goalNode);
   for (let task of agent.tasks) {
-    const taskNode = {
+    let taskNode = {
       id: idSeq++,
       label: task.name,
       parentId: goalNode.id,
@@ -128,7 +128,7 @@ const convertAgentToTree = (agent: Agent): any => {
     };
     goalNode.items.push(taskNode);
     for (let execution of task.executions) {
-      const execNode = {
+      let execNode = {
         id: idSeq++,
         label: execution.response,
         parentId: taskNode.id,
@@ -136,7 +136,7 @@ const convertAgentToTree = (agent: Agent): any => {
       taskNode.items.push(execNode);
     }
   }
-  alert(JSON.stringify(agentNode));
+  // alert(JSON.stringify(agentNode));
   return agentNode;
 };
 
