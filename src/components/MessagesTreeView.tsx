@@ -176,4 +176,4 @@ const MessagesTree = ({ messages }: { messages: Message[] }) => {
   );
 };
 
-export default { TreeViewButton, MessagesTree };
+export { TreeViewButton, MessagesTree };
