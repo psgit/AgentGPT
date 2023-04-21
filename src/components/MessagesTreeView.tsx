@@ -168,7 +168,7 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
   );
 };
 
-export const MessagesTree = ({ messages }: { messages: Message[] }) => {
+const MessagesTree = ({ messages }: { messages: Message[] }) => {
   return (
     <>
       <ReactTree nodes={[convertAgentToTree(createAgent(messages))]} />
@@ -176,4 +176,4 @@ export const MessagesTree = ({ messages }: { messages: Message[] }) => {
   );
 };
 
-export default TreeViewButton;
+export default { TreeViewButton, MessagesTree };
