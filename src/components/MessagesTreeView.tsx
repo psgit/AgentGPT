@@ -2,6 +2,7 @@ import type { Message } from "../types/agentTypes";
 import WindowButton from "./WindowButton";
 import { FaFileCode } from "react-icons/fa";
 import json2md from "json2md";
+import { ReactTree } from "@naisutech/react-tree";
 
 const executing = 'Executing "';
 const JSON_MIME_TYPE = "application/json";
@@ -108,6 +109,36 @@ const convertAgentToMarkdown = (agent: Agent): any => {
   return json2md(md);
 };
 
+const convertAgentToTree = (agent: Agent): any => {
+  let idSeq: int = 1;
+  const agentNode = { id: idSeq++, label: agent.name, items: [] };
+  const goalNode = {
+    id: idSeq++,
+    label: agent.goal,
+    parentId: agentNode.id,
+    items: [],
+  };
+  agentNode.items.push(goalNode);
+  for (let task of agent.tasks) {
+    const taskNode = {
+      id: idSeq++,
+      label: task.name,
+      parentId: goalNode.id,
+      items: [],
+    };
+    goalNode.items.push(taskNode);
+    for (let execution of task.executions) {
+      const execNode = {
+        id: idSeq++,
+        label: execution.response,
+        parentId: taskNode.id,
+      };
+      taskNode.items.push(execNode);
+    }
+  }
+  return agentNode;
+};
+
 const convertAgentToMarkdownDataUrl = (agent: Agent): string => {
   return convertToDataUrl(MARKDOWN_MIME_TYPE, convertAgentToMarkdown(agent));
 };
@@ -133,6 +164,14 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
         icon={<FaFileCode size={12} />}
         text={"TreeView"}
       />
+    </>
+  );
+};
+
+export const MessagesTree = ({ messages }: { messages: Message[] }) => {
+  return (
+    <>
+      <ReactTree nodes={[convertAgentToTree(createAgent(messages))]} />
     </>
   );
 };

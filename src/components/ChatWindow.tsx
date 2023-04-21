@@ -25,7 +25,7 @@ import PDFButton from "./pdf/PDFButton";
 import FadeIn from "./motions/FadeIn";
 import type { Message } from "../types/agentTypes";
 import clsx from "clsx";
-import TreeViewButton from "./MessagesTreeView";
+import { TreeViewButton, MessagesTree } from "./MessagesTreeView";
 
 interface ChatWindowProps extends HeaderProps {
   children?: ReactNode;
@@ -119,6 +119,14 @@ const ChatWindow = ({
                   <DonationMessage />
                 </Expand>
               )}
+            </Expand>
+          </>
+        )}
+
+        {messages.length > 0 && (
+          <>
+            <Expand delay={0.8} type="spring">
+              <MessageTree messages={messages} />
             </Expand>
           </>
         )}
