@@ -111,7 +111,7 @@ const convertAgentToMarkdown = (agent: Agent): any => {
 
 const convertAgentToTree = (agent: Agent): any => {
   let idSeq: int = 1;
-  const agentNode = { id: idSeq++, label: agent.name, items: [] };
+  const agentNode = { id: idSeq++, label: agent.name, parentId: null, items: [] };
   const goalNode = {
     id: idSeq++,
     label: agent.goal,
