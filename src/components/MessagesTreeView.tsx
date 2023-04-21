@@ -4,9 +4,14 @@ import { FaFileCode } from "react-icons/fa";
 import json2md from "json2md";
 import { ReactTree } from "@naisutech/react-tree";
 
-const executing = 'Executing "';
-const JSON_MIME_TYPE = "application/json";
-const MARKDOWN_MIME_TYPE = "text/markdown";
+const EXECUTING: string = 'Executing "';
+const AGENT: string = "Agent: ";
+const GOAL: string = "Goal: ";
+const TASK: string = "Task: ";
+const EXECUTION: string = "Execution: ";
+
+const JSON_MIME_TYPE: string = "application/json";
+const MARKDOWN_MIME_TYPE: string = "text/markdown";
 
 export interface Task {
   name: string;
@@ -87,11 +92,11 @@ const convertAgentToJSONDataUrl = (agent: Agent): string => {
 };
 
 const convertAgentToMarkdown = (agent: Agent): any => {
-  const md = [{ h1: "Agent: " + agent.name }, { h2: "Goal " + agent.goal }];
+  const md = [{ h1: AGENT + agent.name }, { h2: GOAL + agent.goal }];
   for (let task of agent.tasks) {
-    md.push({ h3: "Task: " + task.name });
+    md.push({ h3: TASK + task.name });
     for (let execution of task.executions) {
-      md.push({ h4: "Execution: " + execution.response });
+      md.push({ h4: EXECUTION + execution.response });
     }
   }
   md.push([
@@ -112,18 +117,18 @@ const convertAgentToMarkdown = (agent: Agent): any => {
 const convertAgentToTree = (agent: Agent): any => {
   let idSeq: int = 1;
   const nodes = [];
-  const agentNode = { id: idSeq++, label: agent.name, parentId: null };
+  const agentNode = { id: idSeq++, label: AGENT + agent.name, parentId: null };
   nodes.push(agentNode);
   const goalNode = {
     id: idSeq++,
-    label: agent.goal,
+    label: GOAL + agent.goal,
     parentId: agentNode.id,
   };
   nodes.push(goalNode);
   for (let task of agent.tasks) {
     let taskNode = {
       id: idSeq++,
-      label: task.name,
+      label: TASK + task.name,
       parentId: goalNode.id,
       items: [],
     };
@@ -131,13 +136,12 @@ const convertAgentToTree = (agent: Agent): any => {
     for (let execution of task.executions) {
       const execNode = {
         id: idSeq++,
-        label: execution.response,
+        label: EXECUTION + execution.response,
         parentId: taskNode.id,
       };
       taskNode.items.push(execNode);
     }
   }
-  // alert(JSON.stringify(nodes));
   return nodes;
 };
 
