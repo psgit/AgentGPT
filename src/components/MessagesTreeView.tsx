@@ -111,14 +111,15 @@ const convertAgentToMarkdown = (agent: Agent): any => {
 
 const convertAgentToTree = (agent: Agent): any => {
   let idSeq: int = 1;
-  const agentNode = { id: idSeq++, label: agent.name, parentId: null, items: [] };
-  let goalNode = {
+  const nodes = [];
+  const agentNode = { id: idSeq++, label: agent.name, parentId: null };
+  nodes.push(agentNode);
+  const goalNode = {
     id: idSeq++,
     label: agent.goal,
     parentId: agentNode.id,
-    items: [],
   };
-  agentNode.items.push(goalNode);
+  nodes.push(goalNode);
   for (let task of agent.tasks) {
     let taskNode = {
       id: idSeq++,
@@ -126,9 +127,9 @@ const convertAgentToTree = (agent: Agent): any => {
       parentId: goalNode.id,
       items: [],
     };
-    goalNode.items.push(taskNode);
+    nodes.push(taskNode);
     for (let execution of task.executions) {
-      let execNode = {
+      const execNode = {
         id: idSeq++,
         label: execution.response,
         parentId: taskNode.id,
@@ -136,8 +137,8 @@ const convertAgentToTree = (agent: Agent): any => {
       taskNode.items.push(execNode);
     }
   }
-  // alert(JSON.stringify(agentNode));
-  return agentNode;
+  // alert(JSON.stringify(nodes));
+  return nodes;
 };
 
 const convertAgentToMarkdownDataUrl = (agent: Agent): string => {
@@ -172,7 +173,10 @@ const TreeViewButton = ({ messages }: { messages: Message[] }) => {
 const MessagesTree = ({ messages }: { messages: Message[] }) => {
   return (
     <>
-      <ReactTree nodes={[convertAgentToTree(createAgent(messages))]} />
+      <ReactTree
+        nodes={convertAgentToTree(createAgent(messages))}
+        theme="dark"
+      />
     </>
   );
 };
