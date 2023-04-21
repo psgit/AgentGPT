@@ -29,10 +29,10 @@ export interface Agent {
 }
 
 const extractTaskName = (message: Message): string => {
-  if (message.info && message.info.startsWith("Executing")) {
+  if (message.info && message.info.startsWith(EXECUTING)) {
     return message.info.substr(
-      executing.length,
-      message.info.length - executing.length - 1
+      EXECUTING.length,
+      message.info.length - EXECUTING.length - 1
     );
   }
 };
