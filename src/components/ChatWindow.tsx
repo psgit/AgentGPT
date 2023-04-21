@@ -126,7 +126,7 @@ const ChatWindow = ({
         {messages.length > 0 && (
           <>
             <Expand delay={0.8} type="spring">
-              <MessageTree messages={messages} />
+              <MessagesTree messages={messages} />
             </Expand>
           </>
         )}
