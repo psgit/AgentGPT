@@ -136,6 +136,7 @@ const convertAgentToTree = (agent: Agent): any => {
       taskNode.items.push(execNode);
     }
   }
+  alert(JSON.stringify(agentNode));
   return agentNode;
 };
 
