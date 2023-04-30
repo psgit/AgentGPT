@@ -22,6 +22,7 @@ import {
   TASK_STATUS_FINAL,
 } from "../types/agentTypes";
 import clsx from "clsx";
+import { TreeViewButton, MessagesTree } from "./MessagesTreeView";
 import { getMessageContainerStyle, getTaskStatusIcon } from "./utils/helpers";
 import type { Translation } from "../utils/types";
 import { AnimatePresence } from "framer-motion";
@@ -115,6 +116,16 @@ const ChatWindow = ({
                   value: `📢 ${t("YOU_CAN_PROVIDE_YOUR_OWN_OPENAI_KEY")}`,
                 }}
               />
+           </Expand>
+           </>          
+        )}
+
+        {messages.length > 0 && (
+          <>
+            <Expand delay={0.8} type="spring">
+              <div className="mx-2 my-1 rounded-lg border-[2px] border-white/10 bg-white/20 p-1 font-mono text-sm hover:border-[#1E88E5]/40 sm:mx-4 sm:p-3 sm:text-base">
+                <MessagesTree messages={{ messages }} />
+              </div>
             </Expand>
           </>
         )}
@@ -198,6 +209,7 @@ const MacWindowHeader = (props: HeaderProps) => {
       name={`${t("Copy")}`}
     />,
     <PDFButton key="PDF" name="PDF" messages={props.messages} />,
+    <TreeViewButton key="Treeview" name="Treeview" messages={props.messages} />,
   ];
 
   return (
